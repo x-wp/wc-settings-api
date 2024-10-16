@@ -1,0 +1,62 @@
+{
+  "name": "x-wp/wc-settings-api",
+  "description": "Collection of various helper components used by xWP packages",
+  "license": "GPL-2.0-only",
+  "type": "library",
+  "keywords": [
+    "Utilities",
+    "classes",
+    "decoupling",
+    "interfaces",
+    "interoperability",
+    "standards",
+    "extended-wp",
+    "woocommerce",
+    "config-service"
+  ],
+  "authors": [
+    {
+      "name": "Sibin Grasic",
+      "email": "sibin.grasic@oblak.studio"
+    }
+  ],
+  "require": {
+    "php": ">=8.0",
+    "x-wp/helper-functions": "^1.15",
+    "x-wp/helper-traits": "^1.15"
+  },
+  "require-dev": {
+    "oblak/wordpress-coding-standard": "^1",
+    "php-stubs/woocommerce-stubs": "^9.0",
+    "php-stubs/wordpress-stubs": "^6.5",
+    "phpstan/extension-installer": "^1.3",
+    "phpstan/phpstan": "^1.10",
+    "phpstan/phpstan-deprecation-rules": "^1.1",
+    "swissspidy/phpstan-no-private": "^0.2.0",
+    "szepeviktor/phpstan-wordpress": "^1.3",
+    "automattic/jetpack-constants": "^2.0"
+  },
+  "suggest": {
+    "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+  },
+  "autoload": {
+    "psr-4": {
+      "XWC\\": "src/"
+    },
+    "files": [
+      "src/Functions/xwc-settings-init.php"
+    ],
+    "classmap": [
+      "src/Core"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "phpstan/extension-installer": true
+    },
+    "platform": {
+      "php": "8.0"
+    }
+  }
+}
