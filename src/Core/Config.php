@@ -29,7 +29,7 @@ class XWC_Config implements Config_Repository {
      *
      * @var T
      */
-    protected array $settings = array();
+    protected array $settings;
 
     /**
      * Constructor
@@ -39,16 +39,14 @@ class XWC_Config implements Config_Repository {
      *
      * @throws \InvalidArgumentException If no settings are provided.
      */
-    public function __construct( array $args, protected array $defaults = array() ) {
+    public function __construct( protected array $args, protected array $defaults = array() ) {
         if ( ! isset( $args['api'] ) && ! isset( $args['page'] ) ) {
             throw new \InvalidArgumentException(
                 'You must provide either an WC Settings_API or a WC_Settings_Page configuration',
             );
         }
 
-        foreach ( $args as $type => $prefix ) {
-            $this->parse_settings( $type, $prefix );
-        }
+        $this->reload();
     }
 
     /**
@@ -225,6 +223,21 @@ class XWC_Config implements Config_Repository {
         }
 
         return $opts;
+    }
+
+    /**
+     * Reload the config array
+     *
+     * @return static
+     */
+    public function reload(): static {
+        $this->settings = array();
+
+        foreach ( $this->args as $type => $prefix ) {
+            $this->parse_settings( $type, $prefix );
+        }
+
+        return $this;
     }
 
     /**

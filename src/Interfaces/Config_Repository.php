@@ -13,6 +13,13 @@ namespace XWC\Interfaces;
  */
 interface Config_Repository {
     /**
+     * Reload the config array
+     *
+     * @return static
+     */
+    public function reload(): static;
+
+    /**
      * Get the entire config array
      *
      * @return array
