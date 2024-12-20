@@ -72,14 +72,32 @@ abstract class XWC_Settings_Page extends WC_Settings_Page {
             return array();
         }
 
-        $settings = $this->get_settings_array();
-        $settings = \apply_filters( 'xwc_get_raw_settings_' . $this->id, $settings );
+        $settings = $this->filter_settings( $this->get_settings_array() );
         $settings = \wp_list_sort( $settings, 'priority', 'ASC', true );
         $settings = $this->run_field_callbacks( $settings );
 
         $this->settings = $settings;
 
         return $this->settings;
+    }
+
+    /**
+     * Apply filters to the raw settings array
+     *
+     * @param  array $settings Settings array.
+     * @return array
+     */
+    private function filter_settings( array $settings ): array {
+        /**
+         * Filters the raw settings array
+         *
+         * @param  array             $settings Settings array.
+         * @param  XWC_Settings_Page $page     Current settings page object.
+         * @return array
+         *
+         * @since 1.0.0
+         */
+        return \apply_filters( 'xwc_get_raw_settings_' . $this->id, $settings, $this );
     }
 
     /**

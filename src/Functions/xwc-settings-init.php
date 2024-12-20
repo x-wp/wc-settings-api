@@ -17,7 +17,10 @@ if ( ! function_exists( 'xwc_settings_init' ) && function_exists( 'add_action' )
 			return;
 		}
 
-		$xwc_settings_initialized = \XWC\Admin\Image_Select_Field::instance();
+        \XWC\Admin\Image_Select_Field::instance();
+        \XWC\Admin\Repeater_Text_Settings_Field::instance();
+
+		$xwc_settings_initialized = true;
 	}
 
     did_action( 'init' ) && ! doing_action( 'init' )

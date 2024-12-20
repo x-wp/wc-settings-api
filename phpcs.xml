@@ -4,7 +4,10 @@
   <config name="testVersion" value="8.0-"/>
 
   <rule ref="Oblak"/>
+  <rule ref="Oblak-WooCommerce"/>
   <rule ref="Oblak-Advanced"/>
+  <rule ref="Oblak-Slevomat"/>
+
 
   <rule ref="Squiz.Commenting.FunctionComment.IncorrectTypeHint">
     <severity>0</severity>

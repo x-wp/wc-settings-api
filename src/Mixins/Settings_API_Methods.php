@@ -48,13 +48,6 @@ trait Settings_API_Methods {
     }
 
     /**
-     * Returns the instance type.
-     *
-     * @return 'payment_gateway'|'shipping_method'|'integration'|'email'|'other'
-     */
-    abstract protected function get_meta_type(): string;
-
-    /**
      * Get base props needed for gateway functioning.
      *
      * Base props are: id, 'method_title', 'method_description', 'has_fields', 'supports'
@@ -78,50 +71,26 @@ trait Settings_API_Methods {
     abstract protected function get_raw_form_fields(): array;
 
     /**
-     * Get the instance API Meta config.
+     * Get hook definitions.
+     *
+     * @return array<string,array{
+     *   0: 'filter'|'action',
+     *   1: string,
+     *   2: int
+     * }>
+     */
+    abstract protected function get_hooks(): array;
+
+    /**
+     * Get the admin settings vars.
      *
      * @return array{
      *   page: string,
-     *   rest: string,
      *   tab: string,
-     *   hooks: array<string, array{
-     *     0: 'filter'|'action',
-     *     1: string
-     *     2: int
-     *   }>
+     *   rest: string,
      * }
      */
-    protected function get_api_meta(): array {
-        $instance_cfg = array(
-            'integration'     => array(
-                'hooks' => array(
-                    "woocommerce_update_options_integration_{$this->id}" => array( 'action', 'process_admin_options', 10 ),
-                ),
-                'page'  => 'wc-settings',
-                'rest'  => '/integrations',
-                'tab'   => 'integration',
-            ),
-            'payment_gateway' => array(
-                'hooks' => array(
-                    "woocommerce_update_options_payment_gateways_{$this->id}" => array( 'action', 'process_admin_options', 10 ),
-                    'wc_payment_gateways_initialized' => array( 'action', 'init_gateway', 100 ),
-                ),
-                'page'  => 'wc-settings',
-                'rest'  => '/payment_gateways',
-                'tab'   => 'checkout',
-            ),
-            'shipping_method' => array(
-                'hooks' => array(
-                    "woocommerce_update_options_shipping_{$this->id}" => array( 'action', 'process_admin_options', 10 ),
-                ),
-                'page'  => 'wc-settings',
-                'rest'  => '/shipping_methods',
-                'tab'   => 'shipping',
-            ),
-        );
-
-        return $instance_cfg[ $this->get_meta_type() ];
-    }
+    abstract protected function get_admin_vars(): array;
 
     /**
      * Get the option key.
@@ -197,7 +166,7 @@ trait Settings_API_Methods {
      * Initialize hooks.
      */
     public function init_hooks(): void {
-        foreach ( $this->get_api_meta()['hooks'] as $tag => [ $cb, $method, $prio ] ) {
+        foreach ( $this->get_hooks() as $tag => [ $cb, $method, $prio ] ) {
             ( "add_{$cb}" )( $tag, array( $this, $method ), $prio );
         }
     }
@@ -208,22 +177,26 @@ trait Settings_API_Methods {
 	 * @return bool
 	 */
 	protected function is_accessing_settings() {
-        $val = $this->get_api_meta();
-        $req = \wp_parse_args(
-            \xwp_array_slice_assoc( \xwp_req_arr(), 'page', 'tab', 'section' ),
-            array(
-                'page'    => '',
-                'section' => '',
-                'tab'     => '',
-			),
-        );
+        $val = $this->get_admin_vars();
 
-        if ( ! \is_admin() && ! Constants::is_true( 'REST_REQUEST' ) ) {
-            return false;
+        if ( Constants::is_true( 'REST_REQUEST' ) ) {
+            return \str_contains( $GLOBALS['wp']->query_vars['rest_route'] ?? '', $val['rest'] );
         }
 
-        return ( $req['page'] === $val['page'] && $req['tab'] === $val['tab'] && $this->id === $req['section'] ) ||
-            ( \str_contains( $GLOBALS['wp']->query_vars['rest_route'] ?? '', $val['rest'] ) );
+        if ( \is_admin() ) {
+            $req = \wp_parse_args(
+                \xwp_req_arr(),
+                array(
+                    'page'    => '',
+                    'section' => '',
+                    'tab'     => '',
+                ),
+            );
+
+            return $req['page'] === $val['page'] && $req['tab'] === $val['tab'] && $this->id === $req['section'];
+        }
+
+        return false;
 	}
 
     /**
@@ -295,7 +268,7 @@ trait Settings_API_Methods {
      */
     public function load_form_fields(): array {
         return \array_merge(
-            $this->get_meta_form_fields(),
+            $this->get_base_form_fields(),
             $this->get_raw_form_fields(),
         );
     }
@@ -305,7 +278,7 @@ trait Settings_API_Methods {
      *
      * These are form fields which are needed for the instance to function.
      */
-    protected function get_meta_form_fields(): array {
+    protected function get_base_form_fields(): array {
         return array();
     }
 }
