@@ -28,7 +28,6 @@ abstract class Custom_Field {
      */
     private function __construct() {
         \add_filter( $this->get_hook(), array( $this, 'output_field' ), 99, $this->get_args() );
-        \add_filter( $this->get_hook(), array( $this, 'set_output' ), 100, 0 );
         \add_filter( 'woocommerce_admin_settings_sanitize_option', array( $this, 'sanitize_option' ), 10, 3 );
         \add_filter( 'admin_footer', array( $this, 'output_css' ), 99, 0 );
         \add_filter( 'admin_footer', array( $this, 'output_js' ), 99, 0 );

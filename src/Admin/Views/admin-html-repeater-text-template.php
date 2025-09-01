@@ -12,8 +12,8 @@
 
 defined( 'ABSPATH' ) || exit;
 
-
-$field_name = "{$field['field_name']}[]";
+$def_val    = $field['default'] ?? array();
+$field_name = is_scalar( current( $def_val ) ) ? "{$field['field_name']}[]" : $field['field_name'];
 $field_desc = WC_Admin_Settings::get_field_description( $field );
 
 ?>
@@ -25,23 +25,22 @@ $field_desc = WC_Admin_Settings::get_field_description( $field );
     </th>
     <td class="forminp forminp-<?php echo \esc_attr( \sanitize_title( $field['type'] ) ); ?>">
         <div id="<?php echo \esc_attr( $field['id'] ); ?>" class="repeater-rows">
-        <?php foreach ( $value ?? array() as $row_value ) : ?>
-            <div class="repeater-row row">
-                <input
-                    name="<?php echo \esc_attr( $field_name ); ?>"
-                    id="<?php echo \esc_attr( $field['id'] ); ?>"
-                    type="text"
-                    value="<?php echo \esc_attr( $row_value ); ?>"
-                    class="<?php echo \esc_attr( $field['class'] ); ?>"
-                    placeholder="<?php echo \esc_attr( $field['placeholder'] ); ?>"
-                    <?php echo implode( ' ', $custom_atts ); // phpcs:ignore ?>
-                />
-                <?php echo esc_html( $field['suffix'] ); ?> <?php echo $field_desc['description']; //phpcs:ignore ?>
-                <button type="button" class="button minus repeater-remove-row">
-                    <?php \esc_html_e( 'Remove', 'woocommerce' ); ?>
-                </button>
-            </div>
-        <?php endforeach; ?>
+            <?php
+            foreach ( $value ?? array() as $row_value ) {
+                xwp_get_template(
+                    $row_tmpl,
+                    array(
+                        'class'       => $field['class'],
+                        'custom_atts' => $custom_atts,
+                        'name'        => $field_name,
+                        'placeholder' => $field['placeholder'],
+                        'suffix'      => $field['suffix'],
+                        'type'        => 'text',
+                        'value'       => $row_value,
+                    ),
+                );
+            }
+            ?>
         </div>
         <button
             type="button"
@@ -52,7 +51,7 @@ $field_desc = WC_Admin_Settings::get_field_description( $field );
             data-value=""
             data-class="<?php echo \esc_attr( $field['class'] ); ?>"
             data-placeholder="<?php echo \esc_attr( $field['placeholder'] ); ?>"
-            data-custom_atts="<?php echo \esc_attr( \implode( ' ', $custom_atts ) ); ?>"
+            data-custom_atts="<?php echo \esc_attr( $custom_atts ); ?>"
             data-suffix="<?php echo \esc_attr( $field['suffix'] ); ?>"
         >
             <?php \esc_html_e( 'Add', 'woocommerce' ); ?>

@@ -45,6 +45,8 @@ final class Image_Select_Field extends Custom_Field {
         );
         $data     = \wp_parse_args( $data, $defaults );
 
+        $this->set_output();
+
         return \xwp_get_template_html(
             __DIR__ . '/Views/admin-html-image-select-template.php',
             array(
