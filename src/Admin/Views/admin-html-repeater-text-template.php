@@ -5,9 +5,11 @@
  * @package eXtended WooCommerce
  * @version 3.7.3
  *
- * @var array<string>        $value       Field value.
- * @var array<string,mixed>> $field       Field data.
- * @var array<string>        $custom_atts Custom attributes.
+ * @var array<string>       $value         Field value.
+ * @var array<string,mixed> $field         Field data.
+ * @var array<string>       $custom_atts   Custom attributes.
+ * @var string              $row_tmpl_file Row template file.
+ * @var string              $row_tmpl_id   Row template ID.
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -15,6 +17,7 @@ defined( 'ABSPATH' ) || exit;
 $def_val    = $field['default'] ?? array();
 $field_name = is_scalar( current( $def_val ) ) ? "{$field['field_name']}[]" : $field['field_name'];
 $field_desc = WC_Admin_Settings::get_field_description( $field );
+$field_rows = hash( 'md5', $field['id'] );
 
 ?>
 <tr valign="top">
@@ -24,11 +27,11 @@ $field_desc = WC_Admin_Settings::get_field_description( $field );
         </label>
     </th>
     <td class="forminp forminp-<?php echo \esc_attr( \sanitize_title( $field['type'] ) ); ?>">
-        <div id="<?php echo \esc_attr( $field['id'] ); ?>" class="repeater-rows">
+        <div id="<?php echo \esc_attr( $field_rows ); ?>" class="repeater-rows">
             <?php
             foreach ( $value ?? array() as $row_value ) {
                 xwp_get_template(
-                    $row_tmpl,
+                    $row_tmpl_file,
                     array(
                         'class'       => $field['class'],
                         'custom_atts' => $custom_atts,
@@ -45,7 +48,8 @@ $field_desc = WC_Admin_Settings::get_field_description( $field );
         <button
             type="button"
             class="button plus repeater-add-row"
-            data-tmpl="<?php echo \esc_attr( $field['id'] ); ?>"
+            data-rows="<?php echo \esc_attr( $field_rows ); ?>"
+            data-tmpl="<?php echo esc_attr( $row_tmpl_id ); ?>"
             data-name="<?php echo \esc_attr( $field_name ); ?>"
             data-type="text"
             data-value=""
